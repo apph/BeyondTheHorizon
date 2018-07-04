@@ -1,0 +1,13 @@
+[Unit]
+Description=gps Logging Service
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python /home/pi/TdC/GPS.py
+StandardOutput=syslog
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=gps-logger.service
+

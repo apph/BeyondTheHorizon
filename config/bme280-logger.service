@@ -1,0 +1,13 @@
+[Unit]
+Description=bme280 Logging Service
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python /home/pi/TdC/Adafruit_Python_BME280/BME280.py
+StandardOutput=syslog
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=bme280-logger.service
+

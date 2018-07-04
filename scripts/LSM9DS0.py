@@ -7,7 +7,7 @@ import urllib
 import urllib2
 import socket
 import ssl
-from Adafruit_BME280 import *
+import Adafruit_LSM9DS0
 
 # read properties
 properties = ConfigParser.ConfigParser()
@@ -15,23 +15,23 @@ properties.read('/etc/antReader.cfg')
 
 owner = properties.get('general', 'owner')
 
-bme280_devId = properties.get('bme280', 'devId') 
-bme280_profile = properties.get('bme280', 'profile') 
-bme280_name = properties.get('bme280', 'name') 
-bme280_interval = int(properties.get('bme280', 'interval')) 
-bme280_reportDir = properties.get('bme280', 'reportDir')
+lsm9ds0_devId = properties.get('lsm9ds0', 'devId')
+lsm9ds0_profile = properties.get('lsm9ds0', 'profile')
+lsm9ds0_name = properties.get('lsm9ds0', 'name')
+lsm9ds0_interval = int(properties.get('lsm9ds0', 'interval'))
+lsm9ds0_reportDir = properties.get('lsm9ds0', 'reportDir')
 
-gpsSectionName = properties.get('bme280', 'gps')
+gpsSectionName = properties.get('lsm9ds0', 'gps')
 gps_name = properties.get(gpsSectionName, 'name')
 gps_interval = int(properties.get(gpsSectionName, 'interval'))
 gps_reportDir = properties.get(gpsSectionName, 'reportDir')
 
-reporterSectionName = properties.get('bme280', 'reporter')
+reporterSectionName = properties.get('lsm9ds0', 'reporter')
 reporterURL = properties.get(reporterSectionName, 'URL')
 reporterTimeout = float(properties.get(reporterSectionName, 'timeout'))
 
 # Create new sensor instance
-sensor = BME280(t_mode=BME280_OSAMPLE_8, p_mode=BME280_OSAMPLE_8, h_mode=BME280_OSAMPLE_8)
+imu = Adafruit_LSM9DS0.LSM9DS0()
 
 # prepare SSL context
 sslCtx = ssl.create_default_context()
@@ -42,9 +42,8 @@ timePrev = 0
 while True:
   timeNow = int(time.time())
   dateNow = time.strftime('%Y-%m-%dT%H:%M:%S.000000000%z', time.gmtime())
-  
-  if timeNow >= timePrev + bme280_interval:
-       
+   
+  if timeNow >= timePrev + lsm9ds0_interval:
       gpsFile="%s/%s" % (gps_reportDir,  gps_name)
       gpsValue = "UNKNOWN"
       sensorLong = 0.0 
@@ -56,8 +55,8 @@ while True:
              gpsValue=fs.read()
              fs.close()
              gpsData = gpsValue.split(',')
-             sensorLong = gpsData[4].split(';')[1]
-             sensorLat = gpsData[4].split(';')[0]
+             sensorLat = float(gpsData[4].split(';')[0])
+             sensorLong = float(gpsData[4].split(';')[1])
              if gpsData[4].split(';')[3] == '':
                sensorSpeed = 0.0
              else: 
@@ -67,52 +66,72 @@ while True:
       except Exception as e:
          gpsValue = "NO_DATA"
          print e
-
-      # grab data from sensor     
-      sensorValues = [sensor.read_temperature(), sensor.read_humidity(), sensor.read_pressure() / 100]
-
-      sensorValue = "%s; %s; %s" % (sensorValues[0], sensorValues[1], sensorValues[2])
-      sensorReportLine = "%s, %s, %s, %s, %s, %s" % (dateNow, owner, bme280_name, bme280_devId, sensorValue, gpsValue)  
+      
+      # grab data from sensor 
+      gyro, mag, accel = imu.read()
+       
+      sensorValues = [gyro, mag, accel]
+      
+      gyro_x, gyro_y, gyro_z = gyro
+      mag_x, mag_y, mag_z = mag
+      accel_x, accel_y, accel_z = accel
+      
+      sensorValue = "%s; %s; %s; %s; %s; %s; %s; %s; %s" % (gyro_x, gyro_y, gyro_z, mag_x, mag_y, mag_z, accel_x, accel_y, accel_z)
+      sensorReportLine = "%s, %s, %s, %s, %s, %s" % (dateNow, owner, lsm9ds0_name, lsm9ds0_devId, sensorValue, gpsValue)  
       
       print sensorReportLine
    
-      tmpFile= "%s/%s.tmp" % (bme280_reportDir,  bme280_name)
+      tmpFile= "%s/%s.tmp" % (lsm9ds0_reportDir,  lsm9ds0_name)
       fs = open(tmpFile, "w") 
       fs.write(sensorReportLine)
       fs.close()
-      
-      dataFile= "%s/%s" % (bme280_reportDir,  bme280_name)
+       
+      dataFile= "%s/%s" % (lsm9ds0_reportDir,  lsm9ds0_name)
       os.rename(tmpFile, dataFile) 
       timePrev = timeNow
-      time.sleep(bme280_interval)
-      
-
+      time.sleep(lsm9ds0_interval)
+       
       # send POST to server - one for each reading
-      profiles = bme280_profile.split('_')
+      profiles = lsm9ds0_profile.split('_')
       for cnt in range(0,len(profiles)):
          profile = "%s_%s" % (profiles[cnt], "SENSOR")
          sensorValueRaw = sensorValues[cnt]
-
-         #convert string to number
-         sensorValue = float(sensorValueRaw)
-         sensorValueStr = str(sensorValueRaw)
-
+          
+         #gyro
+         if cnt == 0:
+            x, y, z = sensorValueRaw
+            sensorValue = 0
+            sensorValueStr = "%s; %s; %s" % (x, y, z)
+ 
+         #mag
+         if cnt == 1:
+            x, y, z = sensorValueRaw
+            sensorValue = 0 
+            sensorValueStr = "%s; %s; %s" % (x, y, z)
+ 
+         #accel
+         if cnt == 2:
+            x, y, z = sensorValueRaw
+            sensorValue = 0
+            sensorValueStr = "%s; %s; %s" % (x, y, z)
+          
          sensorPayload = {
-           u"s_id":        bme280_devId,
-           u"s_owner_id":  owner,
+           u"s_owner_id":  owner, 
+           u"s_id":        lsm9ds0_devId,
            u"s_profile":   profile,
            u"e_date":      dateNow,
            u"e_long":      sensorLong,
            u"e_lat":       sensorLat,
            u"e_speed":     sensorSpeed,
-           u"v_text":      sensorValueStr,
+           u"v_text":      sensorValueStr, 
            u"v_number":    sensorValue 
          } 
-
+         
          print sensorPayload
          #req = urllib2.Request(reporterURL, json.dumps(sensorPayload), headers={'Content-type': 'application/json', 'Accept': 'application/json'})
          #try: 
          #   response = urllib2.urlopen(req, timeout = reporterTimeout, context=sslCtx)
          #except Exception as e:
          #   print "Error: %r, payload: %s" % (e, json.dumps(sensorPayload))
+
 
