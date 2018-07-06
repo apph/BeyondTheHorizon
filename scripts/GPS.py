@@ -32,18 +32,14 @@ serialStream = serial.Serial(gps_serialPort, gps_speed, timeout=gps_timeout)
 
 print "Stream: %s" % serialStream
 
-try:
-     print logFile
-    logFile = open(logFile, 'r')
-except IOError:
-    logFile = open(logFile, 'w')
-    print "Creating file"
+logFile = open(logFile, 'a')
 
 speed = 0.0
 timePrev = 0
 while True:
   timeNow = int(time.time())
   dateNow = time.strftime('%Y-%m-%dT%H:%M:%S.000000000%z', time.gmtime())
+  logDate = time.strftime('%Y-%m-%dT%H:%M:%S', time.gmtime())
 
   if timeNow >= timePrev + gps_interval:
       
@@ -79,26 +75,27 @@ while True:
       elif sentence.find('GGA') > 0:
          try:
              gpsData = pynmea2.parse(sentence)
-             logFile.write("GPSData: %s" % gpsData)
+             logFile.write("%s, GPSData: %s\n" % (logDate, gpsData))
              print "GPSData: %s " % (gpsData)
-         except Exception as e: 
-             logFile.write("pynmea2.parse exception %s" % e)
+         except Exception as e:
+             logFile.write("%s, pynmea2.parse exception %s\n" % (logDate, e))
              print e
 
          sensorValue = "%s;%s;%s;%f" % (gpsData.latitude, gpsData.longitude, gpsData.altitude, speed)
-         sensorReportLine = "%s, %s, %s, %s, %s" % (dateNow, owner, gps_name, gps_devId, sensorValue)  
+         #sensorReportLine = "%s, %s, %s, %s, %s" % (dateNow, owner, gps_name, gps_devId, sensorValue)  
           
          #print sensorReportLine
           
          tmpFile= "%s/%s.tmp" % (gps_reportDir,  gps_name)
          fs = open(tmpFile, "w") 
-         fs.write(sensorReportLine)
-         logFile.write(sensorReportLine)
+         fs.write(sensorValue)
+         logFile.write("%s, Sensor data: %s\n" % (logDate, sensorValue))
          fs.close()
          
          dataFile= "%s/%s" % (gps_reportDir,  gps_name)
          os.rename(tmpFile, dataFile) 
          timePrev = timeNow
          time.sleep(gps_interval)
+         #logFile.close()
 
 
