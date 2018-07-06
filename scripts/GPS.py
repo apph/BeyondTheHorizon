@@ -82,20 +82,23 @@ while True:
              print e
 
          sensorValue = "%s;%s;%s;%f" % (gpsData.latitude, gpsData.longitude, gpsData.altitude, speed)
-         sensorReportLine = "%s, %s, %s, %s, %s" % (dateNow, owner, gps_name, gps_devId, sensorValue)  
+
           
          #print sensorReportLine
           
          tmpFile= "%s/%s.tmp" % (gps_reportDir,  gps_name)
          fs = open(tmpFile, "w") 
-         fs.write(sensorReportLine)
-         logFile.write("%s, Sensor reporter: %s\n" % (logDate, sensorReportLine))
+
+         fs.write(sensorValue)
+         logFile.write("%s, Sensor data: %s\n" % (logDate, sensorValue))
+
          fs.close()
          
          dataFile= "%s/%s" % (gps_reportDir,  gps_name)
          os.rename(tmpFile, dataFile) 
          timePrev = timeNow
          time.sleep(gps_interval)
+         #logFile.close()
 
 
 
