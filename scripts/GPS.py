@@ -11,20 +11,20 @@ import pynmea2
 # read properties
 properties = ConfigParser.ConfigParser()
 properties.read('/etc/antReader.cfg')
+reportDir = properties.get('general', 'reportDir')
+logDir = properties.get('general', 'logDir')
 
-owner = properties.get('general', 'owner')
 
-gps_devId = properties.get('gps', 'devId')
-gps_profile = properties.get('gps', 'profile')
 gps_name = properties.get('gps', 'name')
 gps_interval = int(properties.get('gps', 'interval'))
-gps_reportDir = properties.get('gps', 'reportDir')
+
 gps_serialPort = properties.get('gps', 'serialPort')
 gps_speed = int(properties.get('gps', 'speed'))
 gps_timeout = float(properties.get('gps', 'timeout'))
 
-logDir = properties.get('gps', 'logDir')
+
 logFile = "%s%s.log" % (logDir, gps_name)
+
 
 # Create new sensor instance
 print gps_serialPort
@@ -43,7 +43,7 @@ while True:
 
   if timeNow >= timePrev + gps_interval:
       
-      gpsFile="%s/%s" % (gps_reportDir,  gps_name)
+      gpsFile="%s/%s" % (reportDir,  gps_name)
 
       gpsValue = "UNKNOWN"
 
@@ -86,7 +86,7 @@ while True:
           
          #print sensorReportLine
           
-         tmpFile= "%s/%s.tmp" % (gps_reportDir,  gps_name)
+         tmpFile= "%s/%s.tmp" % (reportDir,  gps_name)
          fs = open(tmpFile, "w") 
 
          fs.write(sensorValue)
@@ -94,7 +94,7 @@ while True:
 
          fs.close()
          
-         dataFile= "%s/%s" % (gps_reportDir,  gps_name)
+         dataFile= "%s/%s" % (reportDir,  gps_name)
          os.rename(tmpFile, dataFile) 
          timePrev = timeNow
          time.sleep(gps_interval)
