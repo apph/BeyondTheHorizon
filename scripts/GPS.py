@@ -32,6 +32,9 @@ serialStream = serial.Serial(gps_serialPort, gps_speed, timeout=gps_timeout)
 
 print "Stream: %s" % serialStream
 
+def formatValue(value):
+    return format(value, '.6f')
+
 logFile = open(logFile, 'a')
 
 speed = 0.0
@@ -81,7 +84,7 @@ while True:
              logFile.write("%s, pynmea2.parse exception %s\n" % (logDate, e))
              print e
 
-         sensorValue = "%s;%s;%s;%f" % (gpsData.latitude, gpsData.longitude, gpsData.altitude, speed)
+         sensorValue = "%s;%s;%s;%f" % (formatValue(gpsData.latitude), formatValue(gpsData.longitude), gpsData.altitude, speed)
 
           
          #print sensorReportLine
