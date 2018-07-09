@@ -18,3 +18,8 @@ To run the water sensor some actions are reqiuerd:
 ## GPS 
 To run the GPS sensor some actions are reqiuerd:
 1. sudo pip install pynmea2
+
+## BME280
+1. Download library from https://github.com/adafruit/Adafruit_Python_BME280
+2. Follow instrucitons from README file to install library
+3. Copy Adafruit_BME280.py script to the directory where is located script using this library
