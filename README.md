@@ -31,3 +31,8 @@ sudo raspi-config
 1. Download library from https://github.com/adafruit/Adafruit_Python_BME280
 2. Follow instrucitons from README file to install library
 3. Copy Adafruit_BME280.py script to the directory where is located script using this library
+
+## LSM9DS0
+1. Download library from https://github.com/jckw/Adafruit_LSM9DS0
+2. Rename LSM9DS0.py to Adafruit_LSM9DS0.py (it is located in Adafruit_LSM9DS0 directory)
+2. Copy Adafruit_LSM9DS0.py file from Adafruit_LSM9DS0 directory to the place where is located script using this library
