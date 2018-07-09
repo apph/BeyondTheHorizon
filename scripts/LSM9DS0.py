@@ -11,20 +11,13 @@ import Adafruit_LSM9DS0
 properties = ConfigParser.ConfigParser()
 properties.read('/etc/antReader.cfg')
 
-owner = properties.get('general', 'owner')
-
-lsm9ds0_devId = properties.get('lsm9ds0', 'devId')
-lsm9ds0_profile = properties.get('lsm9ds0', 'profile')
+lsm9ds0_devId = properties.get('general', 'deviceId')
 lsm9ds0_name = properties.get('lsm9ds0', 'name')
 lsm9ds0_interval = int(properties.get('lsm9ds0', 'interval'))
-lsm9ds0_reportDir = properties.get('lsm9ds0', 'reportDir')
+lsm9ds0_reportDir = properties.get('general', 'reportDir')
 
-reporterSectionName = properties.get('lsm9ds0', 'reporter')
-reporterURL = properties.get(reporterSectionName, 'URL')
-reporterTimeout = float(properties.get(reporterSectionName, 'timeout'))
-
-logDir = properties.get('gps', 'logDir')
-logFile = "%s%s.log" % (logDir, lsm9s0_name)
+logDir = properties.get('general', 'logDir')
+logFile = "%s%s.log" % (logDir, lsm9ds0_name)
 
 # Create new sensor instance
 imu = Adafruit_LSM9DS0.LSM9DS0()
@@ -53,7 +46,7 @@ while True:
    
       tmpFile= "%s/%s.tmp" % (lsm9ds0_reportDir,  lsm9ds0_name)
       fs = open(tmpFile, "w") 
-      fs.write(sensorReportLine)
+      fs.write(sensorValue)
       fs.close()
        
       dataFile= "%s/%s" % (lsm9ds0_reportDir,  lsm9ds0_name)
