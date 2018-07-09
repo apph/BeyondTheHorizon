@@ -1,11 +1,10 @@
 from datetime import datetime
+from RockBLOCKSend import RockBLOCKSend
+from apscheduler.schedulers.blocking import BlockingScheduler
+from LoggerUtil import LoggerUtil
 import time
 import ConfigParser
 import os
-import json
-import urllib
-import urllib2
-import socket
 import binascii
 
 
@@ -22,6 +21,7 @@ deviceId = properties.get('general', 'deviceId')
 modem_interval = int(properties.get('rockBLOCK', 'interval'))
 reportDir = properties.get('general', 'reportDir')
 modem_name = properties.get('rockBLOCK', 'name')
+rockBLOCKDevice = properties.get('rockBLOCK', 'device')
 
 sensorsList = properties.get('rockBLOCK', 'sensors')
 logDir = properties.get('general', 'logDir')
@@ -33,10 +33,15 @@ rfid_name = properties.get('rfid', 'name')
 light_name = properties.get('light', 'name')
 water_name = properties.get('waterTemp', 'name')
 
-logPath = "%s%s.log" % (logDir, modem_name)
 rfidFile = "%s%s" % (reportDir, rfid_name)
 
-# TODO: get current timestamp
+logPath = "%s%s.log" % (logDir, modem_name)
+#set Scheduler
+#scheduler = BlockingScheduler()
+
+#Set Logger
+#logger = LoggerUtil(logDir, modem_name)
+
 # TODO: count number of sends
 # default values if nothing from file
 
@@ -46,6 +51,7 @@ forceSendData = False
 def floatToInt(value, multiplier):
     return int(value * multiplier)
 
+#def assembleAndSendData():
 while True:
     timeNow = int(time.time())
     dateNow = time.strftime('%Y%m%dT%H%M%S', time.gmtime())
@@ -99,42 +105,39 @@ while True:
                 elif sensor == light_name:
                     light = sensorValues
                     lightConv = '{:06x}'.format(floatToInt(light, 1), 'x')
-
                 elif sensor == rfid_name:
                     rfid = sensorValues
                     rfidConv = '{:02x}'.format(floatToInt(rfid, 1), 'x')
-
                 elif sensor == water_name:
                     water = float(sensorValues)
                     waterTempConv = '{:04x}'.format(floatToInt(water, TEMPERATURE_MULTIPLIER), 'x')
-
                 else:
                     # unknown sensor
                     logFile.write("%s - unknown sensor: %s\n" % (dateNow, sensor))
 		    pass
 
                 fs.close()
+                
+                deviceIdHex = '{:02x}'.format(deviceId, 'x')
+                timeNow = int(time.time())
+                dateHex = '{:08x}'.format(timeNow, 'x')
                 # unknown sensor value
                 # assemble data
+                
+                assembledData = "Date: %s, Data: %s, %s, %s, %s, %s, %s, %s, %s, %s" % (dateNow, latitude, longitude, airTemperature, humidity, pressure, light, rfid, water, deviceId)
+                print "Data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (dateNow, latConv, lonConv, airTempConv, humidityConv, pressureConv, lightConv, rfidConv, waterTempConv, deviceId, dateHex)
+                logFile.write(assembledData)
+                
+                print "%s%s%s%s%s%s%s%s%s%s" % (latConv, lonConv, dateHex, lightConv, airTempConv, humidityConv, pressureConv, waterTempConv, deviceId, rfidConv)
+                assembledDataHex = "%s%s%s%s%s%s%s%s%s%s" % (latConv, lonConv, dateHex, lightConv, airTempConv, humidityConv, pressureConv, waterTempConv, deviceIdHex, rfidConv)
                 # send data
+                RockBLOCKSend.sendMessage(self, assemledData, rockBLOCKDevice)
+                
             except IOError as (errno, strerror):
                 logFile.write("I/O error({0}): {1}".format(errno, strerror))
             except Exception as e:
                 logFile.write("Unexpected error: {0}".format(e))
 
 
-        devNum = 1
-        deviceId = '{:02x}'.format(1, 'x')
-        timeNow = int(time.time())
-        print "Time %s" % timeNow
-        dateTime = datetime.fromtimestamp(timeNow)
-        print "DateTime %s" % dateTime
-        dateHex = '{:08x}'.format(timeNow, 'x')
-        print "DateHex %s" % dateHex
-        print "Data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (dateNow, latConv, lonConv, airTempConv, humidityConv, pressureConv, lightConv, rfidConv, waterTempConv, deviceId, dateHex)
-        print "%s%s%s%s%s%s%s%s%s%s" % (latConv, lonConv, dateHex, lightConv, airTempConv, humidityConv, pressureConv, waterTempConv, deviceId, rfidConv)
-	        
-
-      
-
-
+#scheduler.add_job(getGPSCoordinates, 'interval', seconds=modem_interval)
+#scheduler.start()
