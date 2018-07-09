@@ -1,0 +1,23 @@
+sudo systemctl enable /home/pi/services/gps-logger.service
+sudo systemctl daemon-reload
+sudo systemctl start gps-logger.service
+
+sudo systemctl enable /home/pi/services/bme280-logger.service
+sudo systemctl daemon-reload
+sudo systemctl start bme280-logger.service
+
+sudo systemctl enable /home/pi/services/bh1750-logger.service
+sudo systemctl daemon-reload
+sudo systemctl start bh1750-logger.service
+
+sudo systemctl enable /home/pi/services/lsm90ds-logger.service
+sudo systemctl daemon-reload
+sudo systemctl start lsm90ds-logger.service
+
+sudo systemctl enable /home/pi/services/rfid-logger.service
+sudo systemctl daemon-reload
+sudo systemctl start rfid-logger.service
+
+sudo systemctl enable /home/pi/services/water-logger.service
+sudo systemctl daemon-reload
+sudo systemctl start water-logger.service
