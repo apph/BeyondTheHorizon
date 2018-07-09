@@ -15,8 +15,8 @@ reportDir = properties.get('general', 'reportDir')
 logDir = properties.get('general', 'logDir')
 
 
-gps_name = properties.get('gps', 'name')
-gps_interval = int(properties.get('gps', 'interval'))
+name = properties.get('gps', 'name')
+interval = int(properties.get('gps', 'interval'))
 
 gps_serialPort = properties.get('gps', 'serialPort')
 gps_speed = int(properties.get('gps', 'speed'))
@@ -32,14 +32,14 @@ logger = LoggerUtil(logDir,name)
 print gps_serialPort
 serialStream = serial.Serial(gps_serialPort, gps_speed, timeout=gps_timeout)
 
-speed = 0.0
-      
 
+      
 def getGPSCoordinates():
+    speed = 0.0
 
     try:
         sentence = serialStream.readline()
-        print sentence
+        
         if sentence.find('VTG') > 0:
             # $GPVTG,,T,,M,1.751,N,3.243,K,A*27
             VTGdata = sentence.split(',')
@@ -48,15 +48,21 @@ def getGPSCoordinates():
                 speed = 0.0
             else:
                 speed = float(VTGdata[7])
-            elif sentence.find('GGA') > 0:
+        elif sentence.find('GGA') > 0:
+            try:
                 gpsData = pynmea2.parse(sentence)
-                print "GPSData: %s " % (gpsData)
-            sensorValue = "%s;%s;%s;%f" % (gpsData.latitude, gpsData.longitude, gpsData.altitude, speed)
+                latitude = format(gpsData.latitude, '.6f')
+                longitude = format(gpsData.longitude, '.6f')
+                sensorValue = "%s;%s" % (latitude, longitude)
+                sensorValueForLogger = "Sat_num: %s, gps_quality: %s,Lat: %s; Long: %s; Alt: %s; Speed %f" % (gpsData.num_sats,gpsData.gps_qual,gpsData.latitude, gpsData.longitude, gpsData.altitude, speed)
                 FileUtil.saveToNewFile(reportDir,name,sensorValue)
-                logger.log(sensorValue)
-        except Exception as e:
-            print e
-            logger.log("Error "+e)
+                logger.log(sensorValueForLogger)
+            except Exception as e:
+                print e
+                logger.log("Error "+e)
+    except Exception as e:
+        print e
+        logger.log("Error "+e)
 
           
         

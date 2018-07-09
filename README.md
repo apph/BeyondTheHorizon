@@ -14,3 +14,7 @@ To run the water sensor some actions are reqiuerd:
     sudo pip install w1thermsensor
     ```
 3. Require modules FileUtil, LoggerUtil, water-temperature
+
+## GPS 
+To run the GPS sensor some actions are reqiuerd:
+1. sudo pip install pynmea2
