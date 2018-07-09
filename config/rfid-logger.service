@@ -1,13 +1,13 @@
 [Unit]
-Description=LSM90DS Logging Service
+Description=RFID Logging Service
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python /home/pi/LSM9DS0.py
+ExecStart=/usr/bin/python /home/pi/rfid.py
 StandardOutput=syslog
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
-Alias=lsm90ds-logger.service
+Alias=rfid-logger.service
 
