@@ -18,3 +18,11 @@ To run the water sensor some actions are reqiuerd:
 ## GPS 
 To run the GPS sensor some actions are reqiuerd:
 1. sudo pip install pynmea2
+
+## Light Sensor
+To run the Light sensor some actions are reqiuerd:
+1. Run the IC2 interface in the configuration 
+```bash
+    sudo raspi-config
+    ```
+2. connect pins according to http://www.pibits.net/code/raspberry-pi-bh1750-light-sensor.php
