@@ -10,7 +10,7 @@ import pynmea2
 
 # read properties
 properties = ConfigParser.ConfigParser()
-properties.read('/home/pi/sensorScripts/config/antReader.cfg')
+properties.read('/etc/antReader.cfg')
 reportDir = properties.get('general', 'reportDir')
 logDir = properties.get('general', 'logDir')
 
@@ -38,8 +38,9 @@ def getGPSCoordinates():
     speed = 0.0
 
     try:
-        sentence = serialStream.readline()
-        
+        sentence = serialStream.readline()        
+        print sentence
+
         if sentence.find('VTG') > 0:
             # $GPVTG,,T,,M,1.751,N,3.243,K,A*27
             VTGdata = sentence.split(',')
