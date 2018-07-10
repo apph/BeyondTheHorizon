@@ -25,17 +25,22 @@ logger = LoggerUtil(logDir,bme280_name)
 # Create new sensor instance
 sensor = BME280(t_mode=BME280_OSAMPLE_8, p_mode=BME280_OSAMPLE_8, h_mode=BME280_OSAMPLE_8)
 
-def getBME280Reading():     
-      # grab data from sensor     
-      sensorValues = [sensor.read_temperature(), sensor.read_humidity(), sensor.read_pressure() / 100]
+def getBME280Reading():  
+      try:   
+            # grab data from sensor     
+            sensorValues = [sensor.read_temperature(), sensor.read_humidity(), sensor.read_pressure() / 100]
 
-      sensorValue = "%s;%s;%s" % (format(sensorValues[0], '.2f'), sensorValues[1], format(sensorValues[2], '.1f'))
-      print sensorValue
+            sensorValue = "%s;%s;%s" % (format(sensorValues[0], '.2f'), sensorValues[1], format(sensorValues[2], '.1f'))
+            print sensorValue
       
-      #print sensorReportLine
+            #print sensorReportLine
    
-      FileUtil.saveToNewFile(repobme280_reportDir,bme280_name,sensorValue)
-      logger.log(sensorValue)
+            FileUtil.saveToNewFile(bme280_reportDir,bme280_name,sensorValue)
+            logger.log(sensorValue)
+            print "Loging"
+      except Exception as e:
+            print e
+            logger.log("ERROR" + e)
       
 scheduler.add_job(getBME280Reading, 'interval', seconds=bme280_interval)
 scheduler.start()

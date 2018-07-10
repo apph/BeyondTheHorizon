@@ -27,21 +27,24 @@ scheduler = BlockingScheduler()
 logger = LoggerUtil(logDir,lsm9ds0_name)
 
 def getLSM9DS0Reading():
-      # grab data from sensor 
-      gyro, mag, accel = imu.read()
+      try:
+            # grab data from sensor 
+            gyro, mag, accel = imu.read()
        
-      sensorValues = [gyro, mag, accel]
-      print sensorValues
+            sensorValues = [gyro, mag, accel]
+            print sensorValues
       
-      gyro_x, gyro_y, gyro_z = gyro
-      mag_x, mag_y, mag_z = mag
-      accel_x, accel_y, accel_z = accel
+            gyro_x, gyro_y, gyro_z = gyro
+            mag_x, mag_y, mag_z = mag
+            accel_x, accel_y, accel_z = accel
       
-      sensorValue = "%s; %s; %s; %s; %s; %s; %s; %s; %s" % (gyro_x, gyro_y, gyro_z, mag_x, mag_y, mag_z, accel_x, accel_y, accel_z)
-      logger.log("%s, Gyro: %s %s %s, Mag: %s %s %s, Accel: %s %s %s\n" % (logDate, gyro_x, gyro_y, gyro_z, mag_x, mag_y, mag_z, accel_x, accel_y, accel_z))
-      print sensorValue
+            sensorValue = "%s; %s; %s; %s; %s; %s; %s; %s; %s" % (gyro_x, gyro_y, gyro_z, mag_x, mag_y, mag_z, accel_x, accel_y, accel_z)
+            logger.log("Gyro: %s %s %s, Mag: %s %s %s, Accel: %s %s %s\n" % (gyro_x, gyro_y, gyro_z, mag_x, mag_y, mag_z, accel_x, accel_y, accel_z))
+            print sensorValue
    
-      FileUtil.saveToNewFile(lsm9ds0_reportDir, lsm9ds0_name,sensorValue)
+            FileUtil.saveToNewFile(lsm9ds0_reportDir, lsm9ds0_name,sensorValue)
+      except Exception as e:
+        print e
       
 
 scheduler.add_job(getLSM9DS0Reading, 'interval', seconds=lsm9ds0_interval)

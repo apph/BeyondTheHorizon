@@ -5,10 +5,12 @@
 4. - EMPTY
 5. - yellow
 6. - brown (GND)
-7. - EMPTY
+7. - white (date - water temperature)
 8. - black
 9. - blue (GND)
 10. - white
+17. - red (pwd - water temperature)
+25. - black (gnd - water temperature)
 
 
 ## BH1750 - Light sensor
@@ -16,7 +18,7 @@
 2. - green 
 3. - yellow 
 4. - blue (GND)
-5. - red (3v)
+5. - red (3v)repobme280_reportDir
 
 ## Neo 6m GPS
 1. - orange (5V)
@@ -38,4 +40,13 @@
 3. - blue (gnd)
 4. - yellow
 5. - green
+
+
+## FT232 USB converter
+1. - orange VCC
+2. - black (GND)
+3. - yellow (txd)
+4. - green (rxd)
+5. - white (rts)
+6. - blue (cts)
  
