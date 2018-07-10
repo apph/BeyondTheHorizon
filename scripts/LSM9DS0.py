@@ -16,7 +16,6 @@ lsm9ds0_interval = int(properties.get('lsm9ds0', 'interval'))
 lsm9ds0_reportDir = properties.get('general', 'reportDir')
 
 logDir = properties.get('general', 'logDir')
-logFile = "%s%s.log" % (logDir, lsm9ds0_name)
 
 # Create new sensor instance
 imu = Adafruit_LSM9DS0.LSM9DS0()
