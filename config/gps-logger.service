@@ -1,9 +1,9 @@
 [Unit]
-Description=gps Logging Service
+Description=GPS Logging Service
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python /home/pi/TdC/GPS.py
+ExecStart=/usr/bin/python /home/pi/scripts/GPS.py
 StandardOutput=syslog
 Restart=always
 

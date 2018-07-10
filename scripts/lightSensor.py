@@ -9,7 +9,7 @@ import time
 
 # read properties
 properties = ConfigParser.ConfigParser()
-properties.read('/home/pi/sensorScripts/config/antReader.cfg')
+properties.read('/etc/antReader.cfg')
 
 reportDir = properties.get('general', 'reportDir')
 logDir = properties.get('general', 'logDir')
