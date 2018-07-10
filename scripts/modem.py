@@ -52,18 +52,24 @@ forceSendData = False
 def floatToInt(value, multiplier):
     return int(value * multiplier)
 
+def convertToHex(value, multiplier, precision):
+    result = floatToInt(value, multiplier)
+    return '{:0{precision}x}'.format(result, 'x', precision=precision)
+
+
 #def assembleAndSendData():
 while True:
     timeNow = int(time.time())
     dateNow = time.strftime('%Y%m%dT%H%M%S', time.gmtime())
-    latConv = '{:08x}'.format(floatToInt(0.0, GPS_MULTIPLIER), 'x')
-    lonConv = '{:08x}'.format(floatToInt(0.0, GPS_MULTIPLIER), 'x')
-    airTempConv = '{:04x}'.format(floatToInt(0.0, TEMPERATURE_MULTIPLIER), 'x')
-    humidityConv = '{:02x}'.format(floatToInt(0, 1), 'x')
-    pressureConv = '{:04x}'.format(floatToInt(0.0, PRESSURE_MULTIPLIER), 'x')
-    waterTempConv = '{:04x}'.format(floatToInt(0.0, TEMPERATURE_MULTIPLIER), 'x')
-    lightConv = '{:06x}'.format(floatToInt(0, 1), 'x')
-    rfidConv = '{:02x}'.format(floatToInt(0-, 1), 'x')
+    # init to default values if nothing comes from the sensor files
+    latConv = convertToHex(0.0, GPS_MULTIPLIER, 8)
+    lonConv = convertToHex(0.0, GPS_MULTIPLIER, 8)
+    airTempConv = convertToHex(0.0, TEMPERATURE_MULTIPLIER, 4)
+    humidityConv = convertToHex(0, 1, 2)
+    pressureConv = convertToHex(0.0, PRESSURE_MULTIPLIER, 4)
+    waterTempConv = convertToHex(0.0, TEMPERATURE_MULTIPLIER, 4)
+    lightConv = convertToHex(0, 1, 6)
+    rfidConv = convertToHex(0, 1, 2)
     
     # pre-initialize array with 8 elements
     sensorRawData = [None] * 8
@@ -94,8 +100,8 @@ while True:
                     gpsData = sensorValues.split(';')
                     latitude = float(gpsData[0])
                     longitude = float(gpsData[1])
-                    latConv = '{:08x}'.format(floatToInt(latitude, GPS_MULTIPLIER), 'x')
-                    lonConv = '{:08x}'.format(floatToInt(longitude, GPS_MULTIPLIER), 'x')
+                    latConv = convertToHex(latitude, GPS_MULTIPLIER, 8)
+                    lonConv = convertToHex(longitude, GPS_MULTIPLIER, 8)
                     sensorRawData[0] = latitude
                     sensorRawData[1] = longitude
                 elif sensor == bme280_name:
@@ -104,26 +110,26 @@ while True:
                     airTemperature = float(bme280Data[0])
                     humidity = float(bme280Data[1])
                     pressure = float(bme280Data[2])
-                    airTempConv = '{:04x}'.format(floatToInt(airTemperature, TEMPERATURE_MULTIPLIER), 'x')
-                    humidityConv = '{:02x}'.format(floatToInt(humidity, 1), 'x')
-                    pressureConv = '{:04x}'.format(floatToInt(pressure, PRESSURE_MULTIPLIER), 'x')
+                    airTempConv = convertToHex(airTemperature, TEMPERATURE_MULTIPLIER, 4)
+                    humidityConv = convertToHex(humidity, 1, 2)
+                    pressureConv = convertToHex(pressure, PRESSURE_MULTIPLIER, 4)
                     sensorRawData[2] = airTemperature
                     sensorRawData[3] = humidity
                     sensorRawData[4] = pressure
                 elif sensor == light_name:
                     #print "LightData: %s" % sensorValues
                     light = sensorValues
-                    lightConv = '{:06x}'.format(floatToInt(light, 1), 'x')
+                    lightConv = convertToHex(light, 1, 6)
                     sensorRawData[5] = light
                 elif sensor == rfid_name:
                     #print "RFIDData: %s" % sensorValues
                     rfid = sensorValues
-                    rfidConv = '{:02x}'.format(floatToInt(rfid, 1), 'x')
+                    rfidConv = convertToHex(rfid, 1, 2)
                     sensorRawData[6] = rfid
                 elif sensor == water_name:
                     #print "WaterData: %s" % sensorValues
                     water = float(sensorValues)
-                    waterTempConv = '{:04x}'.format(floatToInt(water, TEMPERATURE_MULTIPLIER), 'x')
+                    waterTempConv = convertToHex(water, TEMPERATURE_MULTIPLIER, 4)
                     sensorRawData[7] = water
                 else:
                     # unknown sensor
@@ -137,10 +143,9 @@ while True:
             except Exception as e:
                 logFile.write("Unexpected error: {0}\n".format(e))
                 
-        #print "Convert device and date"
-        deviceIdHex = '{:02x}'.format(deviceId, 'x')
+        deviceIdHex = convertToHex(deviceId, 1, 2)
         timeNow = int(time.time())
-        dateHex = '{:08x}'.format(timeNow, 'x')
+        dateHex = convertToHex(timeNow, 1, 8)
         # unknown sensor value
         print "Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], timeNow, sensorRawData[5], sensorRawData[2],
                                                                 sensorRawData[3], sensorRawData[4], sensorRawData[7], deviceId, sensorRawData[6])
