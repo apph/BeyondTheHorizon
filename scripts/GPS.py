@@ -36,9 +36,11 @@ serialStream = serial.Serial(gps_serialPort, gps_speed, timeout=gps_timeout)
       
 def getGPSCoordinates():
     speed = 0.0
+    print "Reading Coordinates"
 
     try:
-        sentence = serialStream.readline()        
+        sentence = serialStream.readline()   
+        logger.log("Sentence: " +sentence)     
         print sentence
 
         if sentence.find('VTG') > 0:
