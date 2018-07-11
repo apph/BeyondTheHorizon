@@ -14,6 +14,7 @@ GPS_MULTIPLIER = 1000000
 PRESSURE_MULTIPLIER = 10
 TEMPERATURE_MULTIPLIER = 100
 
+RFID_READ_FAILURE = 111
 
 # read properties
 properties = ConfigParser.ConfigParser()
@@ -26,7 +27,8 @@ modem_name = properties.get('rockBLOCK', 'name')
 rockBLOCKDevice = properties.get('rockBLOCK', 'device')
 maxRockMessages = properties.get('rockBLOCK', 'maxMessages')
 rockPollInterval = int(properties.get('rockBLOCK', 'pollInterval'))
-
+minInterval = int(properties.get('rockBLOCK', 'minInterval'))
+maxInterval = int(properties.get('rockBLOCK', 'maxInterval'))
 sensorsList = properties.get('rockBLOCK', 'sensors')
 logDir = properties.get('general', 'logDir')
 
@@ -42,7 +44,7 @@ rfidFile = "%s%s" % (reportDir, rfid_name)
 #set Scheduler
 #scheduler = BlockingScheduler()
 
-class RockBlockWrapper(rockBlockProtocol):
+#TODO send message on start?class RockBlockWrapper(rockBlockProtocol):
     logger = LoggerUtil(logDir, modem_name)
     messagesCount = 0
 
@@ -69,7 +71,7 @@ class RockBlockWrapper(rockBlockProtocol):
         self.logger.log("rockBlockRxRecevied " + str(mtmsn) + " " + data)
         if (str(data).startswith("F")):
             newInterval = int(data[1:])
-            if (newInterval >= 10 and newInterval <= 100):
+            if (newInterval >= minInterval and newInterval <= maxInterval):
                 modem_interval = newInterval
                 self.logger.log("RockBLOCK - rockBlockRxRecevied - new interval set to %s" % modem_interval)
         else:
@@ -93,7 +95,6 @@ class RockBlockWrapper(rockBlockProtocol):
         forceSendData = False
 
         while True:
-            # global TRY
             timeNow = int(time.time())
             dateNow = time.strftime('%Y%m%dT%H%M%S', time.gmtime())
             # init to default values if nothing comes from the sensor files
@@ -104,13 +105,16 @@ class RockBlockWrapper(rockBlockProtocol):
             pressureConv = self.convertToHex(0.0, PRESSURE_MULTIPLIER, 4)
             waterTempConv = self.convertToHex(0.0, TEMPERATURE_MULTIPLIER, 4)
             lightConv = self.convertToHex(0, 1, 6)
-            rfidConv = self.convertToHex(0, 1, 2)
+            # no swimmer? -> FF
+            rfidConv = self.convertToHex(255, 1, 2)
             
             # pre-initialize array with 8 elements
             sensorRawData = [None] * 8
 
             # check if there was RFID file modification. If yes, it means swimmer has changed
-            rfidMTime = int(os.stat(rfidFile).st_mtime)
+            rfidMTime = 0
+            if os.path.isfile(rfidFile):
+                rfidMTime = int(os.stat(rfidFile).st_mtime)
             
             # if we have reached maximum number of messages stop sending (will be too expensive)
             if sentRockMessages > maxRockMessages:
@@ -172,7 +176,10 @@ class RockBlockWrapper(rockBlockProtocol):
                         elif sensor == rfid_name:
                             #print "RFIDData: %s" % sensorValues
                             rfid = sensorValues
-                            rfidConv = self.convertToHex(rfid, 1, 2)
+                            if rfid == RFID_READ_FAILURE:
+                                rfidConv = self.convertToHex(255, 1, 2)
+                            else:    
+                                rfidConv = self.convertToHex(rfid, 1, 2)
                             sensorRawData[6] = rfid
                         elif sensor == water_name:
                             #print "WaterData: %s" % sensorValues
@@ -207,11 +214,13 @@ class RockBlockWrapper(rockBlockProtocol):
                 
                 # send data
                 try:
+                    #rbs = RockBLOCKSend()
+                    print "Device: %s" % rockBLOCKDevice
                     self.sendMessage(assembledDataHex, rockBLOCKDevice)
                     sentRockMessages = sentRockMessages + 1
                     self.logger.log("Sent message number: %s" % sentRockMessages)
                 except rockBlockException as e:
-                    print "rockBlockException"
+                    print "rockBlockException %s " % e
                     self.logger.log("RockBLOCK Exception: %s" % str(e))
 
 
