@@ -1,14 +1,14 @@
 [Unit]
-Description=GPS Logging Service
+Description=RFID Logging Service
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python /home/pi/scripts/GPS.py
+ExecStart=/usr/bin/python /home/pi/rfid.py
 StandardOutput=syslog
 Restart=always
 User=pi
 
 [Install]
 WantedBy=multi-user.target
-Alias=gps-logger.service
+Alias=rfid-logger.service
 
