@@ -1,5 +1,4 @@
 from datetime import datetime
-from RockBLOCKSend import RockBLOCKSend
 from rockBlock import rockBlockException
 from rockBlock import rockBlockProtocol
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -94,6 +93,7 @@ class RockBlockWrapper(rockBlockProtocol):
         forceSendData = False
 
         while True:
+            # global TRY
             timeNow = int(time.time())
             dateNow = time.strftime('%Y%m%dT%H%M%S', time.gmtime())
             # init to default values if nothing comes from the sensor files
@@ -207,8 +207,7 @@ class RockBlockWrapper(rockBlockProtocol):
                 
                 # send data
                 try:
-                    rbs = RockBLOCKSend()
-                    rbs.sendMessage(assembledDataHex, rockBLOCKDevice)
+                    self.sendMessage(assembledDataHex, rockBLOCKDevice)
                     sentRockMessages = sentRockMessages + 1
                     self.logger.log("Sent message number: %s" % sentRockMessages)
                 except rockBlockException as e:
