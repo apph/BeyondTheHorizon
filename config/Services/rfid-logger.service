@@ -3,7 +3,7 @@ Description=RFID Logging Service
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python /home/pi/rfid.py
+ExecStart=/usr/bin/python /home/pi/scripts/Rfid.py
 StandardOutput=syslog
 Restart=always
 User=pi

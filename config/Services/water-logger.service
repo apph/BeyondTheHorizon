@@ -3,7 +3,7 @@ Description=Water Temperature Logging Service
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python /home/pi/waterTemperature.py
+ExecStart=/usr/bin/python /home/pi/scripts/WaterTemperature.py
 StandardOutput=syslog
 Restart=always
 User=pi

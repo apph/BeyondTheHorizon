@@ -3,7 +3,7 @@ Description=LSM90DS Logging Service
 After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/python /home/pi/LSM9DS0.py
+ExecStart=/usr/bin/python /home/pi/scripts/LSM9DS0.py
 StandardOutput=syslog
 Restart=always
 User=pi

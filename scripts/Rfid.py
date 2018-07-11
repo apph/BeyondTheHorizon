@@ -11,7 +11,7 @@ cardNumDict = rfidParser.as_dict()
 cardNumDict= cardNumDict['CardsNum']
 
 properties = MyParser()
-properties.read('/etc/antReader.cfg'')
+properties.read('/etc/antReader.cfg')
 
 reportDir = properties.get('general', 'reportDir')
 logDir = properties.get('general', 'logDir')

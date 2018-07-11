@@ -32,7 +32,8 @@
 2. - empty
 3. - blue (gnd)
 4. - yellow
-5. - green
+5. - empty
+6. - green
 
 ## LSM9DS0 Giroscope
 1. - empty
