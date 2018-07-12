@@ -40,6 +40,8 @@ water_name = properties.get('waterTemp', 'name')
 
 rfidFile = "%s%s" % (reportDir, rfid_name)
 
+rockSendMessages = True
+
 #set Scheduler
 #scheduler = BlockingScheduler()
 
@@ -74,6 +76,19 @@ class RockBlockWrapper(rockBlockProtocol):
                 global modem_interval
                 modem_interval = newInterval
                 self.logger.log("RockBLOCK - rockBlockRxRecevied - new interval set to %s" % modem_interval)
+        elif (str(data).startswith("S")):
+            command = data[1:]
+            if command == "reboot":
+                os.system('sudo shutdown -r now')
+            elif command == "sendOn":
+                global rockSendMessages
+                rockSendMessages = True
+            elif command == "sendOff":
+                global rockSendMessgaes
+                rockSendMessages = False
+        elif (str(data).startswith("M")):
+            command = data[1:]
+            # TODO: handle code
         else:
             self.logger.log("RockBLOCK - rockBlockRxRecevied - Unknown command %s" % str(data))
             
@@ -118,6 +133,7 @@ class RockBlockWrapper(rockBlockProtocol):
             
             # if we have reached maximum number of messages stop sending (will be too expensive)
             if sentRockMessages > maxRockMessages:
+                self.logger.log("Maximum possible messages sent. Exiting...")
                 break
           
             # change of swimmer, send data
@@ -212,11 +228,11 @@ class RockBlockWrapper(rockBlockProtocol):
                 
                 # send data
                 try:
-                    #rbs = RockBLOCKSend()
-                    print "Device: %s" % rockBLOCKDevice
-                    self.sendMessage(assembledDataHex, rockBLOCKDevice)
-                    sentRockMessages = sentRockMessages + 1
-                    self.logger.log("Sent message number: %s" % sentRockMessages)
+                    if rockSendMessages:
+                        print "Device: %s" % rockBLOCKDevice
+                        self.sendMessage(assembledDataHex, rockBLOCKDevice)
+                        sentRockMessages = sentRockMessages + 1
+                        self.logger.log("Sent message number: %s" % sentRockMessages)
                 except rockBlockException as e:
                     print "rockBlockException %s " % e
                     self.logger.log("RockBLOCK Exception: %s" % str(e))
