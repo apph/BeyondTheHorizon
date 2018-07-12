@@ -51,7 +51,8 @@ def measureLight():
         logger.log(sensorValueForLogger)
     except Exception as e:
         print e
-        logger.log("Error "+ e)
+        logger.log("Error:")
+        logger.log(e)
      
 
 scheduler.add_job(measureLight, 'interval', seconds=interval)

@@ -32,6 +32,8 @@ def measureTmeperature():
         FileUtil.saveToNewFile(reportDir,name,temperature)
         logger.log(temperature)
     except Exception as e:
+        logger.log("Error:")
+        logger.log(temperature)
         print e
     
 

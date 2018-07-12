@@ -44,7 +44,9 @@ def getLSM9DS0Reading():
    
             FileUtil.saveToNewFile(lsm9ds0_reportDir, lsm9ds0_name,sensorValue)
       except Exception as e:
-        print e
+            logger.log("ERROR")
+            logger.log(e)
+            print e
       
 
 scheduler.add_job(getLSM9DS0Reading, 'interval', seconds=lsm9ds0_interval)
