@@ -2,7 +2,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from FileUtil import FileUtil
 from LoggerUtil import LoggerUtil
 import w1thermsensor 
-import ConfigParser
+import ConfigParser 
 
 # read properties
 properties = ConfigParser.ConfigParser()
@@ -33,7 +33,7 @@ def measureTmeperature():
         logger.log(temperature)
     except Exception as e:
         logger.log("Error:")
-        logger.log(temperature)
+        logger.log(e)
         print e
     
 

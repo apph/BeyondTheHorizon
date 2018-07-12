@@ -28,7 +28,7 @@ logger = LoggerUtil(logDir,lsm9ds0_name)
 
 def getLSM9DS0Reading():
       try:
-            # grab data from sensor 
+            # grab data from sensor  
             gyro, mag, accel = imu.read()
        
             sensorValues = [gyro, mag, accel]

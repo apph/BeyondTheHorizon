@@ -5,8 +5,8 @@ import ConfigParser
 
 #adapter specific
 import serial
-import pynmea2
-
+import pynmea2 
+ 
 
 # read properties
 properties = ConfigParser.ConfigParser()
@@ -17,13 +17,13 @@ logDir = properties.get('general', 'logDir')
 
 name = properties.get('gps', 'name')
 interval = int(properties.get('gps', 'interval'))
-
+print name
 gps_serialPort = properties.get('gps', 'serialPort')
 gps_speed = int(properties.get('gps', 'speed'))
 gps_timeout = float(properties.get('gps', 'timeout'))
 
 #set Scheduler
-scheduler = BlockingScheduler()
+#scheduler = BlockingScheduler()
 
 #Set Logger
 logger = LoggerUtil(logDir,name)
@@ -34,8 +34,11 @@ serialStream = serial.Serial(gps_serialPort, gps_speed, timeout=gps_timeout)
 
 
       
-def getGPSCoordinates():
+while 1:
     speed = 0.0
+    latitude = 0
+    longitude = 0
+    
     print "Reading Coordinates"
 
     try:
@@ -62,15 +65,12 @@ def getGPSCoordinates():
                 logger.log(sensorValueForLogger)
             except Exception as e:
                 print e
-                logger.log("Error "+e)
+                logger.log(e)
     except Exception as e:
         print e
-        logger.log("Error "+e)
+        logger.log(e)
 
           
         
-scheduler.add_job(getGPSCoordinates, 'interval', seconds=interval)
-scheduler.start()
-
-
-
+#scheduler.add_job(getGPSCoordinates, 'interval', seconds=interval)
+#scheduler.start()

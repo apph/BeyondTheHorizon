@@ -4,7 +4,7 @@ from FileUtil import FileUtil
 from LoggerUtil import LoggerUtil
 import ConfigParser
 import smbus
-import time
+import time  
 
 
 # read properties

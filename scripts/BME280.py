@@ -5,6 +5,7 @@ from LoggerUtil import LoggerUtil
 import ConfigParser
 from Adafruit_BME280 import *
 
+
 # read properties
 properties = ConfigParser.ConfigParser()
 properties.read('/etc/antReader.cfg')
@@ -40,7 +41,8 @@ def getBME280Reading():
             print "Loging"
       except Exception as e:
             print e
-            logger.log("ERROR" + e)
+            logger.log("ERROR:")
+            logger.log(e)
       
 scheduler.add_job(getBME280Reading, 'interval', seconds=bme280_interval)
 scheduler.start()
