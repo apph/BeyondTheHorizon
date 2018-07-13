@@ -43,11 +43,20 @@
 5. - green
 
 
-## FT232 USB converter, Modem
+## FT232 USB converter,
 1. - grey VCC
 2. - black (GND)
 3. - violet (txd)
 4. - green (rxd)
 5. - blue (rts)
 6. - brown (cts)
+
+
+## Modem site
+1. - orange VCC
+2. - black (GND)
+3. - yellow (txd)
+4. - green (rxd)
+5. - white (rts)
+6. - blue (cts)
  
