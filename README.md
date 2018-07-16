@@ -43,3 +43,10 @@ sudo raspi-config
 4. LSM9DS0.py - lsm9ds0
 5. Rfid.py - rfid
 6. watterTemperature.py - waterTemp
+
+
+## Bind USB Device Under static Name
+You should not have to write your own udev rules, because udev already makes links like /dev/serial/by-id/usb-Arduino__www.arduino.cc__xxxx_xxxxxxxxxxxxxxxxxxxx-if00. These include the serial number, so they even work if you have two Arduinos and need to keep them separate.
+
+```
+
