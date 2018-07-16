@@ -3,13 +3,14 @@ from rockBlock import rockBlockException
 from rockBlock import rockBlockProtocol
 from apscheduler.schedulers.blocking import BlockingScheduler
 from LoggerUtil import LoggerUtil
+from subprocess import call
 import time
 import ConfigParser
 import os
 import binascii
 import rockBlock
 
- 
+
 GPS_MULTIPLIER = 1000000
 PRESSURE_MULTIPLIER = 10
 TEMPERATURE_MULTIPLIER = 100
@@ -27,6 +28,7 @@ maxRockMessages = properties.get('rockBLOCK', 'maxMessages')
 rockPollInterval = int(properties.get('rockBLOCK', 'pollInterval'))
 minInterval = int(properties.get('rockBLOCK', 'minInterval'))
 maxInterval = int(properties.get('rockBLOCK', 'maxInterval'))
+songsRepo = properties.get('rockBLOCK', 'songsRepo')
 
 sensorsList = properties.get('rockBLOCK', 'sensors')
 logDir = properties.get('general', 'logDir')
@@ -87,8 +89,9 @@ class RockBlockWrapper(rockBlockProtocol):
                 global rockSendMessgaes
                 rockSendMessages = False
         elif (str(data).startswith("M")):
-            command = data[1:]
-            # TODO: handle code
+            songName = data[1:]
+            songFile = songsRepo + songName
+            call(["omxplayer", songFile])
         else:
             self.logger.log("RockBLOCK - rockBlockRxRecevied - Unknown command %s" % str(data))
             
