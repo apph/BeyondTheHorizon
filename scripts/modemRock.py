@@ -50,6 +50,7 @@ rockSendMessages = True
 class RockBlockWrapper(rockBlockProtocol):
     logger = LoggerUtil(logDir, modem_name)
     messagesCount = 0
+    sentRockMessages = 0
 
     def sendMessage(self, message, device):
         rb = rockBlock.rockBlock(device, self)
@@ -68,7 +69,9 @@ class RockBlockWrapper(rockBlockProtocol):
         self.logger.log("rockBlockTxFailed")
         
     def rockBlockTxSuccess(self,momsn):
-        self.logger.log("rockBlockTxSuccess " + str(momsn))
+        # TODO: save value to a file? What if script is restarted. We are counting from 0
+        self.sentRockMessages = self.sentRockMessages + 1
+        self.logger.log("Sent message number " + str(momsn))
         
     def rockBlockRxReceived(self, mtmsn, data):
         self.logger.log("rockBlockRxRecevied, message number %s, data %s " % (str(mtmsn), data))
@@ -109,7 +112,6 @@ class RockBlockWrapper(rockBlockProtocol):
         
     def assembleAndSendData(self):
         timePrev = 0
-        sentRockMessages = 0
         forceSendData = False
 
         while True:
@@ -135,7 +137,7 @@ class RockBlockWrapper(rockBlockProtocol):
                 rfidMTime = int(os.stat(rfidFile).st_mtime)
             
             # if we have reached maximum number of messages stop sending (will be too expensive)
-            if sentRockMessages > maxRockMessages:
+            if self.sentRockMessages > maxRockMessages:
                 self.logger.log("Maximum possible messages sent. Exiting...")
                 break
           
@@ -234,8 +236,6 @@ class RockBlockWrapper(rockBlockProtocol):
                     if rockSendMessages:
                         print "Device: %s" % rockBLOCKDevice
                         self.sendMessage(assembledDataHex, rockBLOCKDevice)
-                        sentRockMessages = sentRockMessages + 1
-                        self.logger.log("Sent message number: %s" % sentRockMessages)
                 except rockBlockException as e:
                     print "rockBlockException %s " % e
                     self.logger.log("RockBLOCK Exception: %s" % str(e))
