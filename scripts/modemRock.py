@@ -54,11 +54,13 @@ class RockBlockWrapper(rockBlockProtocol):
 
     def sendMessage(self, message, device):
         rb = rockBlock.rockBlock(device, self)
+        self.logger.log("sendMessages - sending a message to the satellite.")
         rb.sendMessage(message)      
 	rb.close()
 	
     def requestMessages(self, device):
         rb = rockBlock.rockBlock(device, self)
+        self.logger.log("requestMessages - checking for new messages from the satellite.")
         rb.messageCheck()      
 	rb.close()
         
@@ -80,16 +82,19 @@ class RockBlockWrapper(rockBlockProtocol):
             if (newInterval >= minInterval and newInterval <= maxInterval):
                 global modem_interval
                 modem_interval = newInterval
-                self.logger.log("RockBLOCK - rockBlockRxRecevied - new interval set to %s" % modem_interval)
+                self.logger.log("RockBLOCK - rockBlockRxReceived - new interval set to %s" % modem_interval)
         elif (str(data).startswith("S")):
             command = data[1:]
             if command == "reboot":
+                self.logger.log("RockBLOCK - rockBlockRxReceived - reboot request!")
                 os.system('sudo shutdown -r now')
             elif command == "sendOn":
                 global rockSendMessages
+                self.logger.log("RockBLOCK - rockBlockRxReceived - sending messages is on!")
                 rockSendMessages = True
             elif command == "sendOff":
                 global rockSendMessgaes
+                self.logger.log("RockBLOCK - rockBlockRxReceived - sending messages is off!")
                 rockSendMessages = False
         elif (str(data).startswith("M")):
             songName = data[1:]
