@@ -127,11 +127,13 @@ class RockBlockWrapper(rockBlockProtocol):
             pressureConv = self.convertToHex(0.0, PRESSURE_MULTIPLIER, 4)
             waterTempConv = self.convertToHex(0.0, TEMPERATURE_MULTIPLIER, 4)
             lightConv = self.convertToHex(0, 1, 6)
+            gpsTime = 0
+            
             # no swimmer? -> FF
             rfidConv = self.convertToHex(255, 1, 2)
             
-            # pre-initialize array with 8 elements
-            sensorRawData = [None] * 8
+            # pre-initialize array with 9 elements
+            sensorRawData = [None] * 9
 
             # check if there was RFID file modification. If yes, it means swimmer has changed
             rfidMTime = 0
@@ -174,12 +176,14 @@ class RockBlockWrapper(rockBlockProtocol):
                         if sensor == gps_name:
                             #print "GPSData %s" % sensorValues
                             gpsData = sensorValues.split(';')
-                            latitude = float(gpsData[0])
-                            longitude = float(gpsData[1])
+                            gpsTime = int(gpsData[0])
+                            latitude = float(gpsData[1])
+                            longitude = float(gpsData[2])
                             latConv = self.convertToHex(latitude, GPS_MULTIPLIER, 8)
                             lonConv = self.convertToHex(longitude, GPS_MULTIPLIER, 8)
                             sensorRawData[0] = latitude
                             sensorRawData[1] = longitude
+                            sensorRawData[8] = gpsTime
                         elif sensor == bme280_name:
                             #print "BME280Data: %s" % sensorValues
                             bme280Data = sensorValues.split(';')
@@ -225,11 +229,11 @@ class RockBlockWrapper(rockBlockProtocol):
                 self.logger.log("Computing data took: %s ms" % str(timeDiff))
                         
                 deviceIdHex = self.convertToHex(deviceId, 1, 2)
-                dateHex = self.convertToHex(timeNow, 1, 8)
+                dateHex = self.convertToHex(gpsTime, 1, 8)
                 # unknown sensor value
-                print "Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], timeNow, sensorRawData[5], sensorRawData[2],
+                print "Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], sensorRawData[8], sensorRawData[5], sensorRawData[2],
                                                                         sensorRawData[3], sensorRawData[4], sensorRawData[7], deviceId, sensorRawData[6])
-                self.logger.log("Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], timeNow, sensorRawData[5], sensorRawData[2],
+                self.logger.log("Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], sensorRawData[8], sensorRawData[5], sensorRawData[2],
                                                                         sensorRawData[3], sensorRawData[4], sensorRawData[7], deviceId, sensorRawData[6]))
                 # assemble data
                 
