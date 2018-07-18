@@ -50,14 +50,17 @@ rockSendMessages = True
 class RockBlockWrapper(rockBlockProtocol):
     logger = LoggerUtil(logDir, modem_name)
     messagesCount = 0
+    sentRockMessages = 0
 
     def sendMessage(self, message, device):
         rb = rockBlock.rockBlock(device, self)
+        self.logger.log("sendMessages - sending a message to the satellite.")
         rb.sendMessage(message)      
 	rb.close()
 	
     def requestMessages(self, device):
         rb = rockBlock.rockBlock(device, self)
+        self.logger.log("requestMessages - checking for new messages from the satellite.")
         rb.messageCheck()      
 	rb.close()
         
@@ -68,7 +71,9 @@ class RockBlockWrapper(rockBlockProtocol):
         self.logger.log("rockBlockTxFailed")
         
     def rockBlockTxSuccess(self,momsn):
-        self.logger.log("rockBlockTxSuccess " + str(momsn))
+        # TODO: save value to a file? What if script is restarted. We are counting from 0
+        self.sentRockMessages = self.sentRockMessages + 1
+        self.logger.log("Sent message number " + str(momsn))
         
     def rockBlockRxReceived(self, mtmsn, data):
         self.logger.log("rockBlockRxRecevied, message number %s, data %s " % (str(mtmsn), data))
@@ -77,16 +82,19 @@ class RockBlockWrapper(rockBlockProtocol):
             if (newInterval >= minInterval and newInterval <= maxInterval):
                 global modem_interval
                 modem_interval = newInterval
-                self.logger.log("RockBLOCK - rockBlockRxRecevied - new interval set to %s" % modem_interval)
+                self.logger.log("RockBLOCK - rockBlockRxReceived - new interval set to %s" % modem_interval)
         elif (str(data).startswith("S")):
             command = data[1:]
             if command == "reboot":
+                self.logger.log("RockBLOCK - rockBlockRxReceived - reboot request!")
                 os.system('sudo shutdown -r now')
             elif command == "sendOn":
                 global rockSendMessages
+                self.logger.log("RockBLOCK - rockBlockRxReceived - sending messages is on!")
                 rockSendMessages = True
             elif command == "sendOff":
                 global rockSendMessgaes
+                self.logger.log("RockBLOCK - rockBlockRxReceived - sending messages is off!")
                 rockSendMessages = False
         elif (str(data).startswith("M")):
             songName = data[1:]
@@ -109,7 +117,6 @@ class RockBlockWrapper(rockBlockProtocol):
         
     def assembleAndSendData(self):
         timePrev = 0
-        sentRockMessages = 0
         forceSendData = False
 
         while True:
@@ -135,7 +142,7 @@ class RockBlockWrapper(rockBlockProtocol):
                 rfidMTime = int(os.stat(rfidFile).st_mtime)
             
             # if we have reached maximum number of messages stop sending (will be too expensive)
-            if sentRockMessages > maxRockMessages:
+            if self.sentRockMessages > maxRockMessages:
                 self.logger.log("Maximum possible messages sent. Exiting...")
                 break
           
@@ -234,8 +241,6 @@ class RockBlockWrapper(rockBlockProtocol):
                     if rockSendMessages:
                         print "Device: %s" % rockBLOCKDevice
                         self.sendMessage(assembledDataHex, rockBLOCKDevice)
-                        sentRockMessages = sentRockMessages + 1
-                        self.logger.log("Sent message number: %s" % sentRockMessages)
                 except rockBlockException as e:
                     print "rockBlockException %s " % e
                     self.logger.log("RockBLOCK Exception: %s" % str(e))

@@ -8,7 +8,7 @@ class  LoggerUtil:
       self.dir = dir
 
   def log(self, sensorValue):
-      logDate = time.strftime('%Y-%m-%dT%H:%M:%S', time.gmtime())
+      logDate = time.strftime('%Y-%m-%dT%H:%M:%S')
       tmpFile= "%s/%s.log" % (self.dir,  self.name )
       fs = open(tmpFile, "a") 
       fs.write("%s, %s Data: %s\n" % (logDate,self.name,sensorValue))
