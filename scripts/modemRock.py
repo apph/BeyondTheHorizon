@@ -44,8 +44,6 @@ rfidFile = "%s%s" % (reportDir, rfid_name)
 
 rockSendMessages = True
 
-#set Scheduler
-#scheduler = BlockingScheduler()
 
 class RockBlockWrapper(rockBlockProtocol):
     logger = LoggerUtil(logDir, modem_name)
@@ -121,7 +119,6 @@ class RockBlockWrapper(rockBlockProtocol):
 
         while True:
             timeNow = int(time.time())
-            dateNow = time.strftime('%Y%m%dT%H%M%S', time.gmtime())
             # init to default values if nothing comes from the sensor files
             latConv = self.convertToHex(0.0, GPS_MULTIPLIER, 8)
             lonConv = self.convertToHex(0.0, GPS_MULTIPLIER, 8)
@@ -153,20 +150,20 @@ class RockBlockWrapper(rockBlockProtocol):
             # do we need to poll RockBLOCK for configuration updates
             if (timeNow >= timePrev + rockPollInterval):
                 if self.messagesCount > 0:
-                    print "Invoke RequestMessages"
                     try:
                         self.requestMessages(rockBLOCKDevice)
                     except rockBlockException as e:
-                        print "self.requestMessages(rockBlockException)"
                         self.logger.log("RockBLOCK - requestMessages, exception: %s" % str(e))
 
             if (timeNow >= timePrev + modem_interval) or forceSendData:
-                print "Modem interval: %s" % modem_interval
+                self.logger.log("Collecting data for process %s" % os.getpid())
                 forceSendData = False
                 sensors = sensorsList.split(';')
                 timePrev = timeNow
 
                 #print "Sensors: %s" % sensors
+                timeStart = int(time.time())
+
                 for cnt in range(0, len(sensors)):
                     try: 
                         sensor = sensors[cnt]
@@ -212,7 +209,7 @@ class RockBlockWrapper(rockBlockProtocol):
                             sensorRawData[7] = water
                         else:
                             # unknown sensor
-                            self.logger.log("%s - unknown sensor: %s" % (dateNow, sensor))
+                            self.logger.log("unknown sensor: %s" % (sensor))
                             pass
 
                         fs.close()    
@@ -221,9 +218,13 @@ class RockBlockWrapper(rockBlockProtocol):
                         self.logger.log("I/O error({0}): {1}".format(errno, strerror))
                     except Exception as e:
                         self.logger.log("Unexpected error: {0}".format(e))
+
+                timeStop = int(time.time())
+                timeDiff = timeStop - timeStart
+
+                self.logger.log("Computing data took: %s ms" % str(timeDiff))
                         
                 deviceIdHex = self.convertToHex(deviceId, 1, 2)
-                timeNow = int(time.time())
                 dateHex = self.convertToHex(timeNow, 1, 8)
                 # unknown sensor value
                 print "Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], timeNow, sensorRawData[5], sensorRawData[2],
@@ -239,7 +240,6 @@ class RockBlockWrapper(rockBlockProtocol):
                 # send data
                 try:
                     if rockSendMessages:
-                        print "Device: %s" % rockBLOCKDevice
                         self.sendMessage(assembledDataHex, rockBLOCKDevice)
                 except rockBlockException as e:
                     print "rockBlockException %s " % e
@@ -248,5 +248,4 @@ class RockBlockWrapper(rockBlockProtocol):
 
 rbw = RockBlockWrapper()
 rbw.assembleAndSendData()
-#scheduler.add_job(getGPSCoordinates, 'interval', seconds=modem_interval)
-#scheduler.start()
+
