@@ -156,11 +156,14 @@ class RockBlockWrapper(rockBlockProtocol):
                         self.logger.log("RockBLOCK - requestMessages, exception: %s" % str(e))
 
             if (timeNow >= timePrev + modem_interval) or forceSendData:
+                self.logger.log("Collecting data for process %s" % os.getpid())
                 forceSendData = False
                 sensors = sensorsList.split(';')
                 timePrev = timeNow
 
                 #print "Sensors: %s" % sensors
+                timeStart = int(time.time())
+
                 for cnt in range(0, len(sensors)):
                     try: 
                         sensor = sensors[cnt]
@@ -215,6 +218,11 @@ class RockBlockWrapper(rockBlockProtocol):
                         self.logger.log("I/O error({0}): {1}".format(errno, strerror))
                     except Exception as e:
                         self.logger.log("Unexpected error: {0}".format(e))
+
+                timeStop = int(time.time())
+                timeDiff = timeStop - timeStart
+
+                self.logger.log("Computing data took: %s ms" % str(timeDiff))
                         
                 deviceIdHex = self.convertToHex(deviceId, 1, 2)
                 dateHex = self.convertToHex(timeNow, 1, 8)
