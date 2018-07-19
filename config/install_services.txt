@@ -21,3 +21,7 @@ sudo systemctl start rfid-logger.service
 sudo systemctl enable /home/pi/services/water-logger.service
 sudo systemctl daemon-reload
 sudo systemctl start water-logger.service
+
+sudo systemctl enable /home/pi/services/modem-logger.service
+sudo systemctl deamon-reload
+sudo systemctl start modem-logger.service

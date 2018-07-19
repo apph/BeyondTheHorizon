@@ -1,0 +1,14 @@
+[Unit]
+Description=Modem Logging Service
+After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/python /home/pi/scripts/modemRock.py
+StandardOutput=syslog
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
+Alias=modem-logger.service
+
