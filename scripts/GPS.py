@@ -2,6 +2,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from FileUtil import FileUtil
 from LoggerUtil import LoggerUtil
 import ConfigParser
+import time
 
 #adapter specific
 import serial
@@ -57,10 +58,11 @@ while 1:
         elif sentence.find('GGA') > 0:
             try:
                 gpsData = pynmea2.parse(sentence)
+                timestamp = int(time.time())
                 latitude = format(gpsData.latitude, '.6f')
                 longitude = format(gpsData.longitude, '.6f')
-                sensorValue = "%s;%s" % (latitude, longitude)
-                sensorValueForLogger = "Sat_num: %s, gps_quality: %s,Lat: %s; Long: %s; Alt: %s; Speed %f" % (gpsData.num_sats,gpsData.gps_qual,gpsData.latitude, gpsData.longitude, gpsData.altitude, speed)
+                sensorValue = "%s;%s;%s" % (timestamp,latitude, longitude)
+                sensorValueForLogger = "Sat_num: %s, gps_quality: %s,Lat: %s; Long: %s; Alt: %s; Speed %f; Timestamp %s" % (gpsData.num_sats,gpsData.gps_qual,gpsData.latitude, gpsData.longitude, gpsData.altitude, speed, timestamp)
                 FileUtil.saveToNewFile(reportDir,name,sensorValue)
                 logger.log(sensorValueForLogger)
             except Exception as e:
