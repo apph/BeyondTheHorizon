@@ -72,3 +72,17 @@ The changes of pin connection in box two is as follow.
 3. - white (TX) 
 4. - brown (RX) 
 5. - EMPTY
+
+### Raspberry
+1. - red (3v)
+2. - orange (5v) (GPS)
+3. - green 
+4. - EMPTY
+5. - yellow
+6. - black (GND) GPS
+7. - white/yellow (date - water temperature)
+8. - brown (GPS -RX)
+9. - blue (GND)
+10. - white (GPS TX)
+17. - red (pwd - water temperature)
+25. - black (gnd - water temperature)
