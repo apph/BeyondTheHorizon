@@ -50,6 +50,13 @@ class RockBlockWrapper(rockBlockProtocol):
     messagesCount = 0
     sentRockMessages = 0
 
+    def returnNetworkTime(self, device):
+       rb = rockBlock.rockBlock(device, self)
+       self.logger.log("returnNetworkTime - calling for time to the satellite.")
+       networkTime = rb.networkTime()
+       rb.close()
+       return networkTime
+
     def sendMessage(self, message, device):
         rb = rockBlock.rockBlock(device, self)
         self.logger.log("sendMessages - sending a message to the satellite.")
@@ -229,11 +236,14 @@ class RockBlockWrapper(rockBlockProtocol):
                 self.logger.log("Computing data took: %s ms" % str(timeDiff))
                         
                 deviceIdHex = self.convertToHex(deviceId, 1, 2)
-                dateHex = self.convertToHex(gpsTime, 1, 8)
+
+                networkTime = self.returnNetworkTime(rockBLOCKDevice)
+                self.logger.log("networkTime from satellite %s" % networkTime)
+                dateHex = self.convertToHex(networkTime, 1, 8)
                 # unknown sensor value
-                print "Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], sensorRawData[8], sensorRawData[5], sensorRawData[2],
+                print "Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], networkTime, sensorRawData[5], sensorRawData[2],
                                                                         sensorRawData[3], sensorRawData[4], sensorRawData[7], deviceId, sensorRawData[6])
-                self.logger.log("Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], sensorRawData[8], sensorRawData[5], sensorRawData[2],
+                self.logger.log("Raw sensor data: %s, %s, %s, %s, %s, %s, %s, %s, %s, %s" % (sensorRawData[0], sensorRawData[1], networkTime, sensorRawData[5], sensorRawData[2],
                                                                         sensorRawData[3], sensorRawData[4], sensorRawData[7], deviceId, sensorRawData[6]))
                 # assemble data
                 
@@ -243,7 +253,7 @@ class RockBlockWrapper(rockBlockProtocol):
                 
                 # send data
                 try:
-                    if rockSendMessages:
+                    if rockSendMessages and networkTime != 0:
                         self.sendMessage(assembledDataHex, rockBLOCKDevice)
                 except rockBlockException as e:
                     print "rockBlockException %s " % e
