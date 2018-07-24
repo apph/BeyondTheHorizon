@@ -12,13 +12,17 @@ copy master sd card
 - regulacja glosnosci w glosniku jesli chcemy z niego skorzystac
 - upewnienie sie ze na obydwu maszynach mamy ten sam, najswiezszy kod z git-a
 - gdzie jest rock service w git?
+- opisanie puszek
+- wylaczenie bluetooth/wifi?
 
 TESTY:
 - ostatecznie dzialanie takie samo na obydwu maszynach (sensory, skrypty ladujace i startujace)
 - testy komunikatow z satelity do Raspberry
 - przepiecie modemu - czemu nie lapie sygnalu? Czy txFailed traktujemy tak samo jak ROCK Exception? Co wyrzuca po przepieciu? Chyba tylko sygnalu nie lapie?
 - test wyslania wiadomosci w regularnym interwale
-- test zmiany zawodnika
+- test zmiany zawodnika - wszystkie tagi
 - test konca plywania - zdarzenie '100'
-- test wysylki z gps 0.0/0.0
+- test wysylki z gps 0.0/0.0 (zakrycie gps)
+- restart Raspberry (wiele razy, w roznych momentach - co z serwisami? Powinny automatycznie wstac. Co z modemem? Czy wysyla, czy w dobrej kolejnosci?)
+- przylozenie 100 a potem normalnego
 - 
