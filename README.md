@@ -4,6 +4,14 @@ To run scripts soem liblaries need to be added:
     ```bash
     sudo pip install apscheduler
     ```
+
+     ```bash
+    sudo chmod 777 /etc/fake-hwclock.data
+    ```
+
+     ```bash
+    sudo chmod 777 /sbin/fake-hwclock
+    ```
 ## Water Temperature Sensor
 To run the water sensor some actions are reqiuerd:
 1. Run 1-wire interface
